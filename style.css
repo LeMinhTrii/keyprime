@@ -1572,9 +1572,10 @@ textarea:focus {
 
 .product-image {
   max-width: 78%;
-  /* max-height: 140px; */
+  max-height: 170px;
   object-fit: contain;
   filter: drop-shadow(0 18px 24px rgba(15, 23, 42, 0.18));
+  transform: translateY(10px);
 }
 
 .product-content {
@@ -1749,6 +1750,10 @@ textarea:focus {
     height: 145px;
   }
 
+  .product-image {
+    max-height: 140px;
+    transform: translateY(0);
+  }
   .product-card h3 {
     font-size: 20px;
   }
@@ -2915,5 +2920,101 @@ textarea:focus {
   .float-btn {
     width: 50px;
     height: 50px;
+  }
+}
+
+/* product update */
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.product-card {
+  min-height: 100%;
+}
+
+.product-card .product-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card .product-features {
+  margin-top: auto;
+}
+
+@media (max-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 680px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* cal custom */
+
+/* Giữ hai cột nhưng không kéo khung bên phải cao bằng bên trái */
+.calculator-wrap {
+  align-items: start;
+}
+
+.calculator-card,
+.quote-result {
+  height: auto;
+  min-height: 0;
+}
+
+.quote-result {
+  align-self: start;
+  position: sticky;
+  top: 140px;
+  padding: 28px;
+}
+
+/* Trạng thái chưa nhập sản phẩm */
+.quote-result .empty-summary {
+  margin: 0;
+  padding: 18px 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Các sản phẩm xuất hiện tới đâu, khung cao tới đó */
+.quote-summary-list {
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.result-total {
+  margin-top: 20px;
+}
+
+/* Mobile */
+@media (max-width: 860px) {
+  .calculator-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .quote-result {
+    position: static;
+    width: 100%;
+  }
+}
+
+@media (max-width: 860px) {
+  .quote-result {
+    position: relative;
+    top: auto;
+    align-self: auto;
+  }
+
+  .quote-result::before {
+    display: none;
   }
 }
