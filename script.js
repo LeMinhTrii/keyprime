@@ -5,9 +5,7 @@ const navMenu = document.getElementById("navMenu");
 const copyQuote = document.getElementById("copyQuote");
 const toast = document.getElementById("toast");
 
-const qtyWin10 = document.getElementById("qtyWin10");
-const qtyWin11 = document.getElementById("qtyWin11");
-const qtyOffice = document.getElementById("qtyOffice");
+const quantityInputs = document.querySelectorAll(".calc-qty");
 const summaryList = document.getElementById("summaryList");
 const grandTotal = document.getElementById("grandTotal");
 
@@ -73,52 +71,28 @@ document.querySelectorAll(".faq-question").forEach((button) => {
 });
 
 /* Calculator nhiều sản phẩm */
-const multiPricing = {
-  win10: {
-    name: "Windows 10 Retail Vĩnh Viễn",
-    under10: 899000,
-    over10: 799000,
-    suffix: "/key",
-    input: qtyWin10,
-  },
-  win11: {
-    name: "Windows 11 Retail Vĩnh Viễn",
-    under10: 899000,
-    over10: 799000,
-    suffix: "/key",
-    input: qtyWin11,
-  },
-  office: {
-    name: "Microsoft 365 E5 Developer",
-    under10: 599000,
-    over10: 499000,
-    suffix: "/năm",
-    input: qtyOffice,
-  },
-};
-
 function getMultiQuote() {
-  const items = Object.values(multiPricing)
-    .map((item) => {
-      const qty = Math.max(0, Number(item.input?.value || 0));
-      const unit = qty >= 10 ? item.over10 : item.under10;
-      const total = qty * unit;
+  const items = Array.from(quantityInputs)
+    .map((input) => {
+      const qty = Math.max(0, parseInt(input.value, 10) || 0);
+      const normalPrice = Number(input.dataset.price) || 0;
+      const bulkPrice = Number(input.dataset.bulkPrice) || 0;
+
+      const unitPrice = bulkPrice > 0 && qty >= 10 ? bulkPrice : normalPrice;
 
       return {
-        name: item.name,
+        name: input.dataset.name,
+        unitName: input.dataset.unit || "sản phẩm",
         qty,
-        unit,
-        total,
-        suffix: item.suffix,
+        unitPrice,
+        total: qty * unitPrice,
       };
     })
     .filter((item) => item.qty > 0);
 
-  const totalAll = items.reduce((sum, item) => sum + item.total, 0);
-
   return {
     items,
-    totalAll,
+    totalAll: items.reduce((sum, item) => sum + item.total, 0),
   };
 }
 
@@ -131,6 +105,7 @@ function updateMultiQuote() {
     summaryList.innerHTML = `
       <p class="empty-summary">Chưa nhập số lượng sản phẩm.</p>
     `;
+
     grandTotal.textContent = formatVND(0);
     return;
   }
@@ -141,8 +116,11 @@ function updateMultiQuote() {
         <div class="summary-item">
           <div>
             <strong>${item.name}</strong>
-            <span>${item.qty} key × ${formatVND(item.unit)}${item.suffix}</span>
+            <span>
+              ${item.qty} ${item.unitName} × ${formatVND(item.unitPrice)}
+            </span>
           </div>
+
           <b>${formatVND(item.total)}</b>
         </div>
       `,
@@ -152,10 +130,8 @@ function updateMultiQuote() {
   grandTotal.textContent = formatVND(quote.totalAll);
 }
 
-[qtyWin10, qtyWin11, qtyOffice].forEach((input) => {
-  if (input) {
-    input.addEventListener("input", updateMultiQuote);
-  }
+quantityInputs.forEach((input) => {
+  input.addEventListener("input", updateMultiQuote);
 });
 
 /* Copy báo giá */
@@ -169,14 +145,22 @@ if (copyQuote) {
     }
 
     const detailText = quote.items
-      .map((item) => {
-        return `${item.name}: ${item.qty} key × ${formatVND(item.unit)}${item.suffix} = ${formatVND(item.total)}`;
-      })
+      .map(
+        (item) =>
+          `${item.name}: ${item.qty} ${item.unitName} × ` +
+          `${formatVND(item.unitPrice)} = ${formatVND(item.total)}`,
+      )
       .join("\n");
 
-    const text = `Báo giá dự kiến:\n${detailText}\nTổng cộng: ${formatVND(
-      quote.totalAll,
-    )}\nCó hỗ trợ xuất hóa đơn và tư vấn kích hoạt.`;
+    const text = [
+      "BÁO GIÁ DỰ KIẾN - KEYPRIME",
+      "",
+      detailText,
+      "",
+      `Tổng cộng: ${formatVND(quote.totalAll)}`,
+      "Có hỗ trợ xuất hóa đơn và tư vấn kích hoạt.",
+      "Liên hệ Zalo: 0333074907",
+    ].join("\n");
 
     try {
       await navigator.clipboard.writeText(text);
@@ -186,10 +170,8 @@ if (copyQuote) {
     }
   });
 }
-
 /* Year */
 const yearEl = document.getElementById("year");
-
 if (yearEl) {
   yearEl.textContent = new Date().getFullYear();
 }
